@@ -8,14 +8,19 @@ import jpabook.jpashop.domain.item.Item;
 import jpabook.jpashop.repository.ItemRepository;
 import jpabook.jpashop.repository.MemberRepository;
 import jpabook.jpashop.repository.OrderRepository;
+import jpabook.jpashop.repository.OrderSearch;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class OrderService {
     private final OrderRepository orderRepository;
     private final MemberRepository memberRepository;
@@ -49,10 +54,12 @@ public class OrderService {
     @Transactional
     public void cancelOrder(Long orderId){
         Order order = orderRepository.findOne(orderId);
+        log.info(" ##### log info :" + order.getId());
         order.cancel(); // order.cancel(order) 할 필요가 없다. 엔터티에 cancel() 로직을 넣어놓았기 때문이다. --> 도메인 주도 개발
     }
 
-//    public List<Order> findOrders(OrderSearch orderSearch){
-//        return orderRepository.findAll(orderSearch);
-//    }
+    public List<Order> findOrders(OrderSearch orderSearch){
+        return orderRepository.findAllByString(orderSearch);
+    }
+
 }

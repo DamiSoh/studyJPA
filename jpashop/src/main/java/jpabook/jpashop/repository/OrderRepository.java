@@ -17,41 +17,41 @@ public class OrderRepository {
     private final EntityManager em;
 
     // save
-    public void save(Order order){
+    public void save(Order order) {
         em.persist(order);
     }
 
     // findOne
 
-    public Order findOne(Long id){
+    public Order findOne(Long id) {
         return em.find(Order.class, id);
     }
 
     // 동적 쿼리 만들기 여정
     // 1. JPQL 구분자 스트링으로 아주아주 엮어주기
-    public List<Order> findAllByString(OrderSearch orderSearch){
+    public List<Order> findAllByString(OrderSearch orderSearch) {
 
         String jpql = "select o from Order o join o.member m";
         boolean isFirstCondition = true;
 
-        // 주문 상태 검색
-        if(orderSearch.getOrderStatus() != null){
-            if(isFirstCondition){
-                jpql += "where";
+        //주문 상태 검색
+        if (orderSearch.getOrderStatus() != null) {
+            if (isFirstCondition) {
+                jpql += " where";
                 isFirstCondition = false;
-            }else{
-                jpql += "and";
+            } else {
+                jpql += " and";
             }
-            jpql += "o.status = :status";
+            jpql += " o.status = :status";
         }
 
-        // 회원 이름 검색
-        if(StringUtils.hasText(orderSearch.getMemberName())){
-            if(isFirstCondition){
-                jpql += "where";
+        //회원 이름 검색
+        if (StringUtils.hasText(orderSearch.getMemberName())) {
+            if (isFirstCondition) {
+                jpql += " where";
                 isFirstCondition = false;
-            }else{
-                jpql += "and";
+            } else {
+                jpql += " and";
             }
             jpql += " m.name like :name";
         }
@@ -59,18 +59,19 @@ public class OrderRepository {
         TypedQuery<Order> query = em.createQuery(jpql, Order.class)
                 .setMaxResults(1000);
 
-        if(orderSearch.getOrderStatus() != null){
+        if (orderSearch.getOrderStatus() != null) {
             query = query.setParameter("status", orderSearch.getOrderStatus());
         }
-        if(orderSearch.getMemberName() != null){
+        if (StringUtils.hasText(orderSearch.getMemberName())) {
             query = query.setParameter("name", orderSearch.getMemberName());
         }
+
         return query.getResultList();
     }
 
     // 2. JPA Criteria 이용하기 (정말 비추 queryDSL 을 써라)
     // 아래 코드가 유지보수가 가능하다고 보는가.
-    public List<Order> findAllByCriteria(OrderSearch orderSearch){
+    public List<Order> findAllByCriteria(OrderSearch orderSearch) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Order> cq = cb.createQuery(Order.class);
         Root<Order> o = cq.from(Order.class);
